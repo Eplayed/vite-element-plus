@@ -1,3 +1,11 @@
+/*
+ * @Author: zyj
+ * @Date: 2020-12-26 15:12:46
+ * @LastEditors: zyj
+ * @LastEditTime: 2021-01-06 15:45:34
+ * @Description: file content
+ * @FilePath: /vite-element-plus/vite.config.ts
+ */
 import path from 'path'
 import { UserConfig } from 'vite'
 
@@ -11,6 +19,7 @@ import { UserConfig } from 'vite'
 
 const config:UserConfig = {
     // base: '/element-plus-admin',
+    //extensions vite 暂时不支持，观望中
     alias: {
         '/@/': path.resolve(__dirname, 'src')
     },

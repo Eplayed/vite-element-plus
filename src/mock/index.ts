@@ -127,6 +127,14 @@ const routes = [
         component: 'TableSearchTest',
         meta: { title: '表格搜索', icon: 'el-icon-question' },
     },
+    {
+        id: 32,
+        parentId: 3,
+        name: 'VirtualListTest',
+        path: '/Components/VirtualListTest',
+        component: 'VirtualListTest',
+        meta: { title: '虚拟列表', icon: 'el-icon-question' },
+    },
 ]
 Mock.mock('/getRouterList', 'get', () => {
     return Mock.mock({

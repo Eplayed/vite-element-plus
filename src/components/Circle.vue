@@ -2,13 +2,14 @@
  * @Author: zyj
  * @Date: 2021-01-05 14:18:05
  * @LastEditors: zyj
- * @LastEditTime: 2021-01-05 17:38:30
+ * @LastEditTime: 2021-01-06 13:54:47
  * @Description: file content
  * @FilePath: /vite-element-plus/src/components/Circle.vue
 -->
+
 <template>
-  <div>
-    <span>
+  <div :ref="loadingDom" class="load-mask" :style="backgroundColor">
+    <span class="load-style">
       <svg class="circular" viewBox="25 25 50 50" :style="spinnerStyle">
         <circle
           cx="50"
@@ -22,8 +23,15 @@
     </span>
   </div>
 </template>
-
+/**
+ * @description: 
+ * @param {color} loading 圈的颜色
+ * @param {size} 圈的大小，字符串带px
+ * @param {targetDom} 渲染loading位置，默认 父节点，参数body时全局，暂时不支持自定义dom位置
+ * @param {bgColor} 遮罩层的背景色，传入background-color 属性值
+ */
 <script lang="ts">
+import { createApp } from "vue";
 import { defineComponent, SetupContext, computed } from "vue";
 export default defineComponent({
   name: "Loading",
@@ -36,19 +44,43 @@ export default defineComponent({
       type: String,
       default: "50px",
     },
+    targetDom: {
+      type: String,
+      default: "current",
+    },
+    bgColor:{
+       type: String,
+      default: "hsla(0,0%,100%,.7)",
+    }
   },
   emits: ["update:show"],
   setup(props, context: SetupContext) {
+    const { targetDom } = props;
+    const loadingDom = (el) => {
+      console.log("el", el);
+      const currentEl = el;
+      console.log('targetDom',targetDom)
+      if (targetDom == "body") {
+        document.body.appendChild(currentEl);
+      } else {
+        currentEl.parentElement.style.position = 'relative'
+        currentEl.parentElement.appendChild(currentEl);
+      }
+    };
     const close = () => context.emit("update:show", !props.show);
     const spinnerStyle = computed(() => ({
       color: props.color,
       width: props.size,
       height: props.size,
     }));
-    console.log("spinnerStyle", spinnerStyle.value);
+    const backgroundColor  = computed(()=>({
+      'background-color':props.bgColor
+    }))
     return {
       close,
       spinnerStyle,
+      backgroundColor,
+      loadingDom,
       slots: context.slots,
     };
   },
@@ -56,6 +88,22 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.load-mask{
+  position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: hsla(0,0%,100%,.7);
+    z-index: 999;
+}
+.load-style {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
+}
 .circular {
   /* width: 60px;
   height: 60px; */

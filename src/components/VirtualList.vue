@@ -2,16 +2,29 @@
  * @Author: zyj
  * @Date: 2020-12-31 13:26:46
  * @LastEditors: zyj
- * @LastEditTime: 2021-01-05 14:07:33
+ * @LastEditTime: 2021-01-06 15:30:58
  * @Description: file content
  * @FilePath: /vite-element-plus/src/components/VirtualList.vue
 -->
 <template>
-  <div class="virtual" @scroll="scroll" :style="{ height: 400 + 'px' }">
+  <div class="virtual" @scroll="scroll" :style="{ height: 700 + 'px' }">
     {{ itemHeight }}
     <div class="list" :style="{ height: dataLengh * itemHeight + 'px' }">
       <ul :style="{ 'margin-top': `${scrollTop}px` }">
+        <div v-if="istable">
+          <el-table
+            height="600px"
+            border
+            :data="visiablelist"
+            style="width: 100%"
+          >
+            <slot />
+          </el-table>
+          <el-pagination background layout="prev, pager, next" :total="1000">
+          </el-pagination>
+        </div>
         <li
+          v-else
           v-for="(item, index) in visiablelist"
           :key="index"
           :style="{ height: itemHeight + 'px' }"
@@ -25,33 +38,44 @@
 <script lang="ts">
 import { reactive, toRefs, computed } from "vue";
 export default {
-  setup(prop, context) {
+  props: {
+    list: {
+      type: Array,
+      default: [],
+    },
+    istable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup(props, context) {
     const dataLengh = 100;
-    const itemHeight = 40;
+    const itemHeight = 48;
     const data = reactive({
       scrollTop: 0,
       startIndex: 0,
       endIndex: 10,
     });
+
     function scroll(e) {
       const scrollTop = e.target.scrollTop;
       data.scrollTop = e.target.scrollTop;
       data.startIndex = Math.floor(scrollTop / itemHeight);
       data.endIndex = data.startIndex + 10;
+      console.log("startIndex", data.startIndex);
+      console.log("endIndex", data.endIndex);
     }
-    const list = new Array(dataLengh);
-    for (var i = 0; i < list.length; i++) {
-      list[i] = "这是第" + i + "段文本";
-    }
+    const { list } = props;
     const visiablelist = computed(() => {
       return list.slice(data.startIndex, data.endIndex);
     });
+    const istabled = props.istable;
     return {
       ...toRefs(data),
       scroll,
       visiablelist,
       dataLengh,
-      dataLengh,
+      istabled,
       itemHeight,
     };
   },
@@ -61,7 +85,7 @@ export default {
 .virtual {
   border: solid 1px #eee;
   margin-top: 10px;
-  height: 400px;
+  height: 700px;
   overflow: auto;
 }
 .list {

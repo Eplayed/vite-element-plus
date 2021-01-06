@@ -1,3 +1,11 @@
+/*
+ * @Author: zyj
+ * @Date: 2020-12-26 15:12:46
+ * @LastEditors: zyj
+ * @LastEditTime: 2021-01-06 15:36:00
+ * @Description: file content
+ * @FilePath: /vite-element-plus/src/router/asyncRouter.ts
+ */
 import { IMenubarList } from '/@/type/store/layout'
 import { listToTree } from '/@/utils/listToTree'
 import { store } from '/@/store/index'
@@ -15,6 +23,7 @@ const components = {
     OpenWindowTest: () => import('/@/views/Components/OpenWindowTest.vue'),
     CardListTest: () => import('/@/views/Components/CardListTest.vue'),
     TableSearchTest: () => import('/@/views/Components/TableSearchTest.vue'),
+    VirtualListTest:() => import('/@/views/Components/VirtualListTest.vue')
 }
 
 const asyncRouter:Array<IMenubarList> = [
