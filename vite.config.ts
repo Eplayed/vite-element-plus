@@ -2,7 +2,7 @@
  * @Author: zyj
  * @Date: 2020-12-26 15:12:46
  * @LastEditors: zyj
- * @LastEditTime: 2021-01-06 15:45:34
+ * @LastEditTime: 2021-01-06 16:00:35
  * @Description: file content
  * @FilePath: /vite-element-plus/vite.config.ts
  */
@@ -23,6 +23,7 @@ const config:UserConfig = {
     alias: {
         '/@/': path.resolve(__dirname, 'src')
     },
+    open: true,
     assetsDir: 'public',
     proxy: {
         '/api': {
