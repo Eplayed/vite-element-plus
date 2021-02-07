@@ -1,7 +1,7 @@
 <template>
-    <transition name='el-zoom-in-center'>
+    <transition name='el-fade-in'>
         <div
-            v-show='show'
+            v-if='show'
             class='open-select-mask w-full h-full bg-black bg-opacity-30 z-50 fixed top-0 left-0 flex flex-center'
         >
             <div class='open-select w-11/12 max-w-screen-xl h-5/6 bg-white flex flex-col overflow-x-hidden overflow-y-auto'>
@@ -55,16 +55,19 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-    .open-select-btn .el-button + .el-button{
-        margin-left: -1px;
-    }
-    .open-select-btn .el-button{
+<style lang="postcss" scoped>
+    .open-select-btn .el-button {
         border-radius: 0;
         flex: 1;
+
+        & + .el-button {
+            margin-left: -1px;
+        }
+
+        &:hover {
+            z-index: 1;
+        }
     }
-    .open-select-btn .el-button:hover{
-        z-index: 1;
-    }
+
 </style>
     

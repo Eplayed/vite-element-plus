@@ -10,7 +10,6 @@
                 "w-16": menubar.status === 1, 
             }'
             :collapse-transition='false'
-            text-color='#fff'
             :unique-opened='true'
             @select='onOpenChange'
         >
@@ -40,13 +39,13 @@ export default defineComponent ({
         const route = useRoute()
         const router = useRouter()
         const { menubar } = store.state.layout
-        const menuList = menubar.menuList.filter(v=>!v.hidden)
+        const menuList = menubar.menuList.filter(v => !v.hidden)
 
-        const activeMenu = computed(()=>{
+        const activeMenu = computed(() => {
             if(route.meta.activeMenu) return route.meta.activeMenu
             return route.path
         })
-        const onOpenChange = d => router.push({ path: d })
+        const onOpenChange = (d: any) => router.push({ path: d })
         return {
             menubar,
             menuList,
@@ -56,22 +55,3 @@ export default defineComponent ({
     }
 })
 </script>
-
-<style>
-.el-menu{
-    background-color: #001529;
-}
-.el-menu .el-menu{
-    background-color: #000c17;
-}
-.el-menu-item:focus, 
-.el-menu-item:hover, 
-.el-submenu__title:hover{
-    background-color: transparent;
-}
-.el-menu-item.is-active{
-    background-color: #1890ff;
-    color: #fff;
-}
-
-</style>

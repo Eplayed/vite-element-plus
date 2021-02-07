@@ -9,8 +9,8 @@
                     v-for='(v,i) in tagsList'
                     :key='v.path'
                     :ref='el => { layoutTagsItem[i] = el }'
-                    class='border border-gray-200 px-2 py-1 mx-1 cursor-pointer'
-                    :class='{"tags-bg": v.isActive, "text-white": v.isActive}'
+                    class='border border-gray-200 px-2 py-1 mx-1 cursor-pointer rounded-md'
+                    :class='{"layout-tags-active": v.isActive}'
                     @contextmenu.prevent='contextRightMenu(v,$event)'
                 >
                     <i
@@ -19,8 +19,8 @@
                     />
                     <router-link :to='v.path'>{{ v.title }}</router-link>
                     <i
-                        v-if='i!==0'
-                        class='el-icon-close text-xs hover:bg-gray-300 hover:text-white rounded-full p-0.5 ml-1 -mr-1'
+                        v-if='tagsList.length>1'
+                        class='el-icon-close text-xs hover:bg-gray-300 hover:text-white rounded-full leading-3 p-0.5 ml-1 -mr-1'
                         @click='removeTagNav(v)'
                     />
                 </span>
@@ -54,11 +54,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, ref, watch, onBeforeUpdate, onMounted, reactive } from 'vue'
+import { defineComponent, nextTick, ref, watch, onBeforeUpdate, onMounted, reactive, Ref } from 'vue'
 import { useStore } from '/@/store/index'
 import { Store } from 'vuex'
-import { IState } from '/@/type/store/index'
-import { useRoute, useRouter, Router, RouteLocationNormalizedLoaded, } from 'vue-router'
+import { IState } from '/@/global'
+import { useRoute, useRouter, Router, RouteLocationNormalizedLoaded } from 'vue-router'
 import { ITagsList } from '/@/type/store/layout'
 
 // 右键菜单
@@ -68,26 +68,27 @@ const rightMenu = (store:Store<IState>, router: Router, route: RouteLocationNorm
         top: '0px',
         display: 'none'
     })
-    const rightMenuEl = ref(null)
+    const rightMenuEl:Ref<HTMLElement | null> = ref(null)
     // 当前右键的那个标签
-    let currentRightTags:ITagsList = null
-    const contextRightMenu = (v, event) => {
+    let currentRightTags:ITagsList
+    const contextRightMenu = (v:ITagsList, event:MouseEvent) => {
         currentRightTags = v
         menuPos.display = 'block'
-        nextTick(()=>{
+        nextTick(() => {
             let left = event.clientX - 5
-            if(event.clientX + rightMenuEl.value.offsetWidth > document.body.offsetWidth){
+            if(!rightMenuEl.value) return
+            if(event.clientX + rightMenuEl.value.offsetWidth > document.body.offsetWidth) {
                 left = event.clientX - rightMenuEl.value.offsetWidth
             }
-            menuPos.left = left + 'px'
-            menuPos.top = event.clientY + 10 + 'px'
+            menuPos.left = `${left}px`
+            menuPos.top = `${event.clientY + 10}px`
         })
     }
     const refresh = () => {
-        if(currentRightTags.path === route.path){
-            router.replace('/redirect' + currentRightTags.path)
+        if(currentRightTags.path === route.path) {
+            router.replace(`/redirect${currentRightTags.path}`)
         }else{
-            router.push('/redirect' + currentRightTags.path)
+            router.push(`/redirect${currentRightTags.path}`)
         }
     }
     const closeOther = () => store.commit('layout/removeOtherTagNav', currentRightTags)
@@ -97,18 +98,20 @@ const rightMenu = (store:Store<IState>, router: Router, route: RouteLocationNorm
 
 // 标签页滚动
 const tagScroll = (store:Store<IState>) => {
-    const { tagsList } = store.state.layout.tags
-    const scrollbar = ref(null)
-    const layoutTagsItem = ref([])
+    const { tagsList, cachedViews } = store.state.layout.tags
+    const scrollbar:Ref<{wrap:HTMLElement, update():void} | null> = ref(null)
+    const layoutTagsItem:Ref<Array<HTMLElement>> = ref([])
     // 监听标签页导航
     watch(
         () => tagsList.length,
-        () => nextTick(()=>{
+        () => nextTick(() => {
+            if(!scrollbar.value) return
             scrollbar.value.update()
-            nextTick(()=>{
-                const itemWidth = layoutTagsItem.value.filter(v=>v).reduce((acc, v)=>{
+            nextTick(() => {
+                const itemWidth = layoutTagsItem.value.filter(v => v).reduce((acc, v) => {
                     return acc + v.offsetWidth + 6
                 }, 0)
+                if(!scrollbar.value) return
                 const scrollLeft = itemWidth - scrollbar.value.wrap.offsetWidth + 70
                 if(scrollLeft > 0) scrollbar.value.wrap.scrollLeft = scrollLeft
             })
@@ -118,7 +121,7 @@ const tagScroll = (store:Store<IState>) => {
     onBeforeUpdate(() => {
         layoutTagsItem.value = []
     })
-    return { tagsList, scrollbar, layoutTagsItem }
+    return { tagsList, scrollbar, layoutTagsItem, cachedViews }
 }
 export default defineComponent({
     name: 'LayoutTags',
@@ -126,10 +129,10 @@ export default defineComponent({
         const store = useStore()
         const route = useRoute()
         const router = useRouter()
-        const removeTagNav = (v) => store.commit('layout/removeTagNav', { cPath: route.path, tagsList: v })
+        const removeTagNav = (v: any) => store.commit('layout/removeTagNav', { cPath: route.path, tagsList: v })
         const closeAll = () => store.commit('layout/removeAllTagNav')
         
-        onMounted(()=>{
+        onMounted(() => {
             store.commit('layout/addCachedViews', { name: route.name, noCache: route.meta.noCache })
         })
         
@@ -145,9 +148,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style scoped>
-    .tags-bg{
-        background-color: #409eff;
-    }
-</style>

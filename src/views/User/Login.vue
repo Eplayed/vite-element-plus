@@ -33,9 +33,20 @@
                 >
                     登录
                 </el-button>
-                <el-button @click='reset'>
+                <el-button @click='resetFields(ruleForm)'>
                     重置
                 </el-button>
+            </el-form-item>
+            <el-form-item>
+                <p class='leading-5'>
+                    账号: admin 密码: admin
+                </p>
+                <p class='leading-5'>
+                    账号: dev 密码: dev
+                </p>
+                <p class='leading-5'>
+                    账号: test 密码: test
+                </p>
             </el-form-item>
         </el-form>
     </div>
@@ -44,39 +55,33 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue'
 import { store } from '/@/store/index'
-import router from '/@/router/index'
 import { ElNotification } from 'element-plus'
+import { validate, resetFields } from '/@/utils/formExtend'
 
 const formRender = () => {
     let form = reactive({
         name: 'admin',
-        pwd: 'admin',
+        pwd: 'admin'
     })
     const ruleForm = ref(null)
-    const enterSubmit = e => {
-        if(e.keyCode === 13){
+    const enterSubmit = (e:KeyboardEvent) => {
+        if(e.key === 'Enter') {
             onSubmit()
         }
     }
-    const validate = function():Promise<boolean>{
-        return new Promise(resolve=>ruleForm.value.validate((valid: boolean)=>resolve(valid)))
-    }
     const onSubmit = async() => {
         let { name, pwd } = form
-        console.log(ruleForm)
-        if(!await validate()) return
+        if(!await validate(ruleForm)) return
         await store.dispatch('layout/login', { username: name, password: pwd })
-        router.replace({ path: '/' })
         ElNotification({
             title: '欢迎',
             message: '欢迎回来',
             type: 'success'
         })
     }
-    const reset = () => ruleForm.value.resetFields()
     const rules = reactive({
         name: [
-            { validator: (rule, value, callback) => {
+            { validator: (rule: any, value: any, callback: (arg0?: Error|undefined) => void) => {
                 if (!value) {
                     return callback(new Error('用户名不能为空'))
                 }
@@ -85,22 +90,22 @@ const formRender = () => {
             }
         ],
         pwd: [
-            { validator: (rule, value, callback) => {
+            { validator: (rule: any, value: any, callback: (arg0?: Error|undefined) => void) => {
                 if (!value) {
                     return callback(new Error('密码不能为空'))
                 }
                 callback()
             }, trigger: 'blur' 
             }
-        ],
+        ]
     })
     return {
         form, 
         onSubmit,
         enterSubmit,
         rules,
-        ruleForm,
-        reset
+        resetFields,
+        ruleForm
     }
 }
 export default defineComponent({
@@ -117,7 +122,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.layout-login{
+.layout-login {
     padding-top: 200px;
     width: 400px;
     margin: 0 auto;

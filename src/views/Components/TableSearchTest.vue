@@ -13,88 +13,94 @@
             >
                 <el-col :span='24'>
                     <card-list
-                        :ref='el=>{refForm=el}'
                         title='高级搜索'
-                        type='KeyValue'
+                        type='keyvalue'
                         :show-header='true'
-                        :form='form'
-                        :rules='rules'
                     >
                         <template #btn>
                             <el-button-group>
                                 <el-button
                                     icon='el-icon-search'
+                                    size='mini'
                                     @click='submit'
                                 >
                                     搜索
                                 </el-button>
                             </el-button-group>
                         </template>
-                        <template #KeyValue>
-                            <card-list-item
-                                width='100px'
-                                prop='name'
+                        <template #keyvalue>
+                            <el-form
+                                ref='refForm'
+                                class='card-list-form'
+                                :model='form'
+                                :rules='rules'
+                                size='mini'
                             >
-                                <template #key>
-                                    日期
-                                </template>
-                                <template #value>
-                                    <el-date-picker
-                                        v-model='form.date'
-                                        type='daterange'
-                                        range-separator='至'
-                                        start-placeholder='开始日期'
-                                        end-placeholder='结束日期'
-                                        format='yyyy-MM-dd'
-                                        value-format='yyyy-MM-dd'
-                                    />
-                                </template>
-                            </card-list-item>
-                            <card-list-item
-                                width='100px'
-                                prop='name'
-                            >
-                                <template #key>
-                                    姓名
-                                </template>
-                                <template #value>
-                                    <el-input
-                                        v-model='form.name'
-                                        placeholder='请输入姓名'
-                                    />
-                                </template>
-                            </card-list-item>
-                            <card-list-item
-                                width='100px'
-                                prop='address'
-                            >
-                                <template #key>
-                                    地址
-                                </template>
-                                <template #value>
-                                    <el-input
-                                        v-model='form.address'
-                                        placeholder='请输入地址'
-                                    />
-                                </template>
-                            </card-list-item>
-                            <card-list-item
-                                width='100px'
-                                prop='tag'
-                            >
-                                <template #key>
-                                    标签
-                                </template>
-                                <template #value>
-                                    <el-radio-group v-model='form.tag'>
-                                        <el-radio label='所有' />
-                                        <el-radio label='家' />
-                                        <el-radio label='学校' />
-                                        <el-radio label='超市' />
-                                        <el-radio label='公司' />
-                                    </el-radio-group>
-                                </template>
-                            </card-list-item>
+                                <el-row :gutter='15'>
+                                    <card-list-item
+                                        width='100px'
+                                        prop='name'
+                                    >
+                                        <template #key>
+                                            日期
+                                        </template>
+                                        <template #value>
+                                            <el-date-picker
+                                                v-model='form.date'
+                                                type='daterange'
+                                                range-separator='至'
+                                                start-placeholder='开始日期'
+                                                end-placeholder='结束日期'
+                                            />
+                                        </template>
+                                    </card-list-item>
+                                    <card-list-item
+                                        width='100px'
+                                        prop='name'
+                                    >
+                                        <template #key>
+                                            姓名
+                                        </template>
+                                        <template #value>
+                                            <el-input
+                                                v-model='form.name'
+                                                placeholder='请输入姓名'
+                                            />
+                                        </template>
+                                    </card-list-item>
+                                    <card-list-item
+                                        width='100px'
+                                        prop='address'
+                                    >
+                                        <template #key>
+                                            地址
+                                        </template>
+                                        <template #value>
+                                            <el-input
+                                                v-model='form.address'
+                                                placeholder='请输入地址'
+                                            />
+                                        </template>
+                                    </card-list-item>
+                                    <card-list-item
+                                        width='100px'
+                                        prop='tag'
+                                    >
+                                        <template #key>
+                                            标签
+                                        </template>
+                                        <template #value>
+                                            <el-radio-group v-model='form.tag'>
+                                                <el-radio label='所有' />
+                                                <el-radio label='家' />
+                                                <el-radio label='学校' />
+                                                <el-radio label='超市' />
+                                                <el-radio label='公司' />
+                                            </el-radio-group>
+                                        </template>
+                                    </card-list-item>
+                                </el-row>
+                            </el-form>
                         </template>
                     </card-list>
                 </el-col>
@@ -104,13 +110,14 @@
             ref='filterTable'
             row-key='date'
             border
-            :data='table.data'
-            style='width: 100%'
+            :data='tableData.data'
+            style='width: 100%;'
             :summary-method='getSummaries'
             show-summary
         >
             <el-table-column
                 type='index'
+                width='50'
                 :index='indexMethod'
             />
             <el-table-column
@@ -135,8 +142,8 @@
             >
                 <template #default='scope'>
                     <el-input
-                        v-model='scope.row.amt'
-                        v-format:money
+                        v-model.number='scope.row.amt'
+                        v-format:money='[scope.row, "amt"]'
                     />
                 </template>
             </el-table-column>
@@ -163,9 +170,9 @@ import { defineComponent, reactive, ref } from 'vue'
 import TableSearch from '/@/components/TableSearch.vue'
 import CardList from '/@/components/CardList.vue'
 import CardListItem from '/@/components/CardListItem.vue'
-import { validate } from '/@/components/CardList.vue'
 import { getTableList, ITag } from '/@/api/components/index'
 import { format, tableSummaries } from '/@/utils/tools'
+import { validate } from '/@/utils/formExtend'
 
 interface ISearchForm {
     date: string
@@ -185,8 +192,7 @@ const search = (table: ITable, form: ISearchForm) => {
     const rules = reactive({})
     const refForm = ref(null)
     const submit = async() => {
-        const data = await validate(refForm)
-        if(!data) return
+        if(!await validate(refForm)) return
         table.page = 1
         renderTableList(table, form)
     }
@@ -204,9 +210,9 @@ const renderTableList = async(table: ITable, form: ISearchForm) => {
 }
 const tableRender = (table: ITable, form: ISearchForm) => {
     renderTableList(table, form)
-    const handleSizeChange = (v) => (table.size = v) && renderTableList(table, form)
-    const handleCurrentChange = (v) => (table.page = v) && renderTableList(table, form)
-    const indexMethod = (index) => (table.page - 1) * table.size + index + 1
+    const handleSizeChange = (v: number) => (table.size = v) && renderTableList(table, form)
+    const handleCurrentChange = (v: number) => (table.page = v) && renderTableList(table, form)
+    const indexMethod = (index: number) => (table.page - 1) * table.size + index + 1
     const getSummaries = tableSummaries
     return { table, handleSizeChange, handleCurrentChange, indexMethod, getSummaries }
 }
@@ -223,11 +229,11 @@ export default defineComponent({
             date: '',
             name: '',
             address: '',
-            tag: '所有',
+            tag: '所有'
         })
 
         // const 
-        const table: ITable = reactive({
+        const tableData: ITable = reactive({
             data : [],
             total: 0,
             page: 1,
@@ -235,11 +241,11 @@ export default defineComponent({
         })
         return {
             form,
-            table,
+            tableData,
             format,
-            ...tableRender(table, form),
-            ...search(table, form)
+            ...tableRender(tableData, form),
+            ...search(tableData, form)
         }
-    },
+    }
 })
 </script>

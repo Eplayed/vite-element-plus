@@ -57,19 +57,21 @@ export default defineComponent({
     emits: ['update:show'],
     setup(props, context: SetupContext) {
         return {
-            slots: context.slots,
+            slots: context.slots
         }
     }
 })
 </script>
 
 <style>
-    .card-list-item .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+    .card-list-item .el-form-item--mini.el-form-item,
+    .el-form-item--small.el-form-item {
         margin-bottom: 0;
     }
+
     .card-list-item .el-select,
-    .card-list-item .el-date-editor.el-input, 
-    .card-list-item .el-date-editor.el-input__inner{
+    .card-list-item .el-date-editor.el-input,
+    .card-list-item .el-date-editor.el-input__inner {
         width: 100%;
     }
 </style>

@@ -3,7 +3,7 @@
         <el-table
             :data='list.tableData'
             border
-            style='width: 100%'
+            style='width: 100%;'
         >
             <el-table-column
                 fixed
@@ -70,12 +70,12 @@ export default defineComponent({
                 projName: '005'
             }]
         })
-        const handleClick = (row) => {
+        const handleClick = (row: any) => {
             console.log(row)
         }
         return {
             list,
-            handleClick,
+            handleClick
         }
     }
 })
